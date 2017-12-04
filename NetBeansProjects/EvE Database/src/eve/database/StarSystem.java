@@ -5,14 +5,9 @@
  */
 package eve.database;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseMotionListener;
 import java.awt.Color;
 import static java.awt.Color.RED;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.io.IOException;
 
 /**
  *

@@ -28,7 +28,7 @@ public class EvEDatabase {
         MapGenerator start = new MapGenerator();
         JFrame frame= new JFrame("Eve Trader Map");
         frame.add(start);
-        frame.setSize(1150, 400);
+        frame.setSize(800, 250);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 

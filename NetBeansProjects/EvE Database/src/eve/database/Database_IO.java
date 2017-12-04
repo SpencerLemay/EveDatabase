@@ -59,7 +59,7 @@ public class Database_IO {
     public int[] GetSolarSystemID(){
         return solarSystemID;
     }
-    public void loadSystemInfo() throws SQLException {
+    public void loadSystemInfo(String RegionName) throws SQLException {
         //
         Connection conn = null;
         Statement stmt = null;
@@ -71,10 +71,14 @@ public class Database_IO {
            System.out.println("Connecting to a selected database...");
            conn = DriverManager.getConnection(DB_URL, USER, PASS);
            System.out.println("Connected database successfully...");
-
+           String sql;
            stmt = conn.createStatement();
-
-           String sql = "SELECT regionID,solarSystemID,solarSystemName,x,z,security FROM mapSolarSystems WHERE regionID <11000001";
+           if(RegionName==null){
+            sql = "SELECT regionID,solarSystemID,solarSystemName,x,z,security FROM mapSolarSystems WHERE regionID <11000001";
+           }else{
+            sql = "SELECT regions.regionID,solarSystemID,solarSystemName,x,z,security FROM mapSolarSystems,regions WHERE mapSolarSystems.regionID = regions.regionid AND regions.name = '"+RegionName+"'";
+            
+           }
            ResultSet rs = stmt.executeQuery(sql);
            int i =0;
            while(rs.next()){
@@ -108,8 +112,8 @@ public class Database_IO {
         }//end try
         
     }
-    public int[][] loadConnectsTo(int SysIDs[]){
-        int [][]connections= new int[SystemCount()][20];
+    public int[][] loadConnectsTo(int SysIDs[],String RegionName){
+        int [][]connections= new int[SystemCount(RegionName)][20];
         Connection conn = null;
         Statement stmt = null;
         try{
@@ -121,30 +125,31 @@ public class Database_IO {
            conn = DriverManager.getConnection(DB_URL, USER, PASS);
            System.out.println("Connected database successfully...");
            String sql;
-           stmt = conn.createStatement(); 
-           sql = "SELECT * FROM connectsto";
-           ResultSet rs = stmt.executeQuery(sql);
-           int i=0;
-           int j=0;
-           //System.out.println(SysIDs[i]+"\n");
-           while(rs.next()){
-               if(rs.getInt("target")==SysIDs[i]){
-                connections[i][j] = rs.getInt("source");
-                j++;
-               }else{
-                j=0;
-                i++;
-               }
+           stmt = conn.createStatement();
+           if(RegionName==null){
+            sql = "SELECT * FROM connectsto";
+           }else{
+            sql= "SELECT target,source FROM connectsto,systems,regions WHERE systems.systemid = target AND systems.regionid = regions.regionid AND regions.name = '"+RegionName+"'";
            }
-           rs.close();
-        }catch(SQLException se){
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                int i=0;
+                int j=0;
+                //System.out.println(SysIDs[i]+"\n");
+                while(rs.next()){
+                    if(rs.getInt("target")==SysIDs[i]){
+                        connections[i][j] = rs.getInt("source");
+                        j++;
+                    }else{
+                        j=0;
+                        i++;
+                    }
+                }}
+        }catch(SQLException | ClassNotFoundException se){
            //Handle errors for JDBC
            se.printStackTrace();
         }
-        catch(Exception e){
-           //Handle errors for Class.forName
-           e.printStackTrace();
-        }
+       //Handle errors for Class.forName
+
         finally{
            //finally block used to close resources
            try{ 
@@ -152,13 +157,12 @@ public class Database_IO {
                  conn.close();
            }
            catch(SQLException se){
-              se.printStackTrace();
            }//end finally try
         }//end try
         System.out.println("finished");
         return connections;
     }
-    public int SystemCount(){
+    public int SystemCount(String RegionName){
         int count=0;
         Connection conn = null;
         Statement stmt = null;
@@ -173,7 +177,13 @@ public class Database_IO {
 
            stmt = conn.createStatement();
 
-           String sql = "SELECT COUNT(*) FROM mapSolarSystems WHERE regionID <11000001";
+           String sql;
+           if(RegionName==null){
+                sql = "SELECT COUNT(*) FROM mapSolarSystems WHERE regionID <11000001";
+            }else{
+                 sql = "SELECT COUNT(*) FROM mapSolarSystems,regions WHERE mapSolarSystems.regionID = regions.regionid AND regions.name = '"+RegionName+"'";
+
+           }
            ResultSet rs = stmt.executeQuery(sql);
            if(rs.next()){
                count = rs.getInt(1);

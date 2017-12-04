@@ -28,11 +28,8 @@ public class drawMap extends JPanel  {
     Double miny;
     Double maxx;
     Double maxy;
-    Double dmulty;
-    float multy;
-    float multx;
-    int xwidth=6000;
-    int ywidth=1300;
+    float xwidth=1000;
+    float ywidth=1000;
     private int highlight = -1;
     
             JLabel sysLabel=null;
@@ -47,27 +44,33 @@ public class drawMap extends JPanel  {
         miny=getMinYSys(systems);
         maxx=getMaxXSys(systems);
         maxy=getMaxYSys(systems);
-        if(maxx>maxy)
-                dmulty= (maxy/maxx);
-        else
-            dmulty=(maxx/maxy);
-        multy =dmulty.floatValue();
-        multx= 1-multy;
-        for(int i=0;i<systems.length;i++){
-            
-            tempx=normalizeStar(systems[i].x,minx,maxx,multx*xwidth);
-            tempy=normalizeStar(systems[i].y,miny,maxy,multy*ywidth);
-            systems[i].star= new Rectangle(tempx,tempy,7,7);
-            systems[i].connectionx=new int[systems[i].connectsTo.length];
-            systems[i].connectiony=new int[systems[i].connectsTo.length];
-            for(int j=0;j<systems[i].connectsTo.length;j++){
-                for(int k=0;k<systems.length;k++){
-                    if(systems[i].connectsTo[j]==systems[k].systemID){
-                        systems[i].connectiony[j]=normalizeStar(systems[k].y,miny,maxy,multy*ywidth);
-                        systems[i].connectionx[j]=normalizeStar(systems[k].x,minx,maxx,multx*xwidth);
+        System.out.println("minx "+minx+"miny "+miny+"maxx "+maxx+"maxy "+maxy+"\n");
+        
+        Double dmulty= maxy-miny;
+        Double dmultx= maxx-minx;
+        Double store=dmultx/dmulty;
+        float mapRatio=store.floatValue();
+        if(mapRatio<1){
+            xwidth=xwidth*mapRatio;
+        }
+        else{
+            ywidth=ywidth*mapRatio;
+        }
+        System.out.println("ratio: "+mapRatio+"\n");
+        for (StarSystem system : systems) {
+            tempx = normalizeStar(system.x, minx, maxx, xwidth);
+            tempy = normalizeStar(system.y, miny, maxy, ywidth);
+            system.star = new Rectangle(tempx,tempy,7,7);
+            system.connectionx = new int[system.connectsTo.length];
+            system.connectiony = new int[system.connectsTo.length];
+            for (int j = 0; j < system.connectsTo.length; j++) {
+                for (int k = 0; k<systems.length; k++) {
+                    if (system.connectsTo[j] == systems[k].systemID) {
+                        system.connectiony[j] = normalizeStar(systems[k].y,miny,maxy,ywidth);
+                        system.connectionx[j] = normalizeStar(systems[k].x,minx,maxx,xwidth);
+                        System.out.println(system.connectiony[j]+","+system.connectionx[j]+"\n");
                         j++;
                         k=0;
-
                     }
                 }
             }
@@ -85,11 +88,8 @@ public class drawMap extends JPanel  {
         }
     });
     }
-    int normalizeStar(Double i,Double min,Double max,float multiplier){
-        //System.out.println(i+"\n");
-        i=((i+abs(min))/(abs(max)+abs(min)))*multiplier;
-        //System.out.println(i+"\n");
-        //System.out.println(i.intValue());
+    private int normalizeStar(Double i,Double min,Double max,float multiplier){
+        i=((i-min)/(max-min))*multiplier;
         return i.intValue();
     }
     
@@ -100,42 +100,43 @@ public class drawMap extends JPanel  {
      */
     public static double getMaxXSys(StarSystem[] inputArray){ 
         Double maxValue = inputArray[0].x; 
-        for(int i=0;i < inputArray.length;i++){ 
-          if(inputArray[i].x > maxValue){ 
-             maxValue = inputArray[i].x; 
-          } 
+        for (StarSystem inputArray1 : inputArray) {
+            if (inputArray1.x > maxValue) {
+                maxValue = inputArray1.x;
+            }
         } 
         return maxValue; 
     }
     public static Double getMaxYSys(StarSystem[] inputArray){ 
         Double maxValue = inputArray[0].y; 
-        for(int i=0;i < inputArray.length;i++){ 
-          if(inputArray[i].y > maxValue){ 
-             maxValue = inputArray[i].y; 
-          } 
+        for (StarSystem inputArray1 : inputArray) {
+            if (inputArray1.y > maxValue) {
+                maxValue = inputArray1.y;
+            }
         } 
         return maxValue; 
     }
     public static Double getMinXSys(StarSystem[] inputArray){ 
         Double minValue = inputArray[0].x; 
-        for(int i=0;i<inputArray.length;i++){ 
-          if(inputArray[i].x < minValue){ 
-            minValue = inputArray[i].x; 
-          } 
+        for (StarSystem inputArray1 : inputArray) {
+            if (inputArray1.x < minValue) {
+                minValue = inputArray1.x;
+            }
         } 
         return minValue; 
     }
     public static Double getMinYSys(StarSystem[] inputArray){ 
     Double minValue = inputArray[0].y; 
-        for(int i=0;i<inputArray.length;i++){ 
-          if(inputArray[i].y < minValue){ 
-            minValue = inputArray[i].y; 
-          } 
+        for (StarSystem inputArray1 : inputArray) {
+            if (inputArray1.y < minValue) {
+                minValue = inputArray1.y;
+            }
         } 
         return minValue; 
     } 
     
     
+    @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;

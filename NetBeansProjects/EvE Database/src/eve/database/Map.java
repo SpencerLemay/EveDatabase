@@ -5,7 +5,6 @@
  */
 package eve.database;
 
-import java.awt.Rectangle;
 import java.sql.SQLException;
 import javax.swing.JFrame;
 
@@ -15,10 +14,10 @@ import javax.swing.JFrame;
  */
 public class Map {
     Database_IO base= new Database_IO();
-    Map() throws SQLException{
-        base.loadSystemInfo();
+    Map(String RegionName) throws SQLException{
+        base.loadSystemInfo(RegionName);
         
-        StarSystem[] Systems= new StarSystem[base.SystemCount()];
+        StarSystem[] Systems= new StarSystem[base.SystemCount(RegionName)];
         
         //int SystemSources[]=base.GetConnectsFrom();
         //System.out.print( Systems[0].name+"\n");
@@ -27,9 +26,10 @@ public class Map {
         Double SysListY[]= base.GetSystemLocY();
         Double SysListSec[]=base.GetSystemSecurity();
         int SysRegionIDs[]= base.GetRegionID();
-        int SysSysIDs[]=base.GetSolarSystemID();
+        int SysSysIDs[];
+        SysSysIDs = base.GetSolarSystemID();
         System.out.println("here");
-        int SysConnections[][]=base.loadConnectsTo(SysSysIDs);
+        int SysConnections[][]=base.loadConnectsTo(SysSysIDs,RegionName);
         for(int i=0;i<Systems.length;i++){
             Systems[i]= new StarSystem();
             Systems[i].name=SysNames[i];
