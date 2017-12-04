@@ -16,10 +16,17 @@ import javax.swing.JComboBox;
  */
 public class MapGenerator extends javax.swing.JPanel {
     String RegionsArray[];
-    private boolean hideNull= false;
-    private boolean hideLow= false;
-    private boolean hideHigh= false;
+    private boolean Nullsec= true;
+    private boolean Lowsec= true;
+    private boolean Highsec= true;
+    private boolean useID=true;
+    private int transFilter=0;
+    private int FilterQuantity;
+    private String item;
+    private String itemContains;
     private String selectedRegion=null;
+    private String selectedFilter="Connections";
+
     /**
      * Creates new form MapGenerator
      */
@@ -47,13 +54,11 @@ public class MapGenerator extends javax.swing.JPanel {
         filterType = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         transOf = new javax.swing.JRadioButton();
-        transContain = new javax.swing.JRadioButton();
-        jTextField8 = new javax.swing.JTextField();
-        jTextField9 = new javax.swing.JTextField();
+        itemBox = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         idtoggle = new javax.swing.JRadioButton();
         nametoggle = new javax.swing.JRadioButton();
-        jRadioButton1 = new javax.swing.JRadioButton();
+        NoneTrans = new javax.swing.JRadioButton();
         NullSec = new javax.swing.JCheckBox();
         LowSec = new javax.swing.JCheckBox();
         HighSec = new javax.swing.JCheckBox();
@@ -73,7 +78,7 @@ public class MapGenerator extends javax.swing.JPanel {
             }
         });
 
-        filterQuantity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1+", "2+", "3+", "4+", "5+", "6+" }));
+        filterQuantity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6" }));
         filterQuantity.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filterQuantityActionPerformed(evt);
@@ -81,31 +86,46 @@ public class MapGenerator extends javax.swing.JPanel {
         });
 
         filterType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Connections", "Stations", "Sell Orders", "Buy Orders", " ", " " }));
+        filterType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterTypeActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("present.");
 
         filterToggle.add(transOf);
         transOf.setText("Transactions of Item");
-
-        filterToggle.add(transContain);
-        transContain.setText("Transactions with item containing");
-        transContain.addActionListener(new java.awt.event.ActionListener() {
+        transOf.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                transContainActionPerformed(evt);
+                transOfActionPerformed(evt);
             }
         });
 
-        jTextField8.setText("jTextField8");
-
-        jTextField9.setText("jTextField9");
+        itemBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemBoxActionPerformed(evt);
+            }
+        });
 
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         IDNameToggle.add(idtoggle);
+        idtoggle.setSelected(true);
         idtoggle.setText("ID");
+        idtoggle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                idtoggleActionPerformed(evt);
+            }
+        });
 
         IDNameToggle.add(nametoggle);
         nametoggle.setText("Name");
+        nametoggle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nametoggleActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -126,11 +146,12 @@ public class MapGenerator extends javax.swing.JPanel {
                 .addComponent(nametoggle))
         );
 
-        filterToggle.add(jRadioButton1);
-        jRadioButton1.setText("None");
-        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+        filterToggle.add(NoneTrans);
+        NoneTrans.setSelected(true);
+        NoneTrans.setText("None");
+        NoneTrans.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton1ActionPerformed(evt);
+                NoneTransActionPerformed(evt);
             }
         });
 
@@ -144,15 +165,11 @@ public class MapGenerator extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(transContain)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(transOf)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jRadioButton1))
-                        .addGap(18, 18, 18)
+                                .addComponent(itemBox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(NoneTrans))
+                        .addGap(58, 58, 58)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -171,15 +188,12 @@ public class MapGenerator extends javax.swing.JPanel {
                 .addContainerGap(13, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jRadioButton1)
+                        .addComponent(NoneTrans)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(itemBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(transOf, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(transContain)
-                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(21, 21, 21))
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -192,9 +206,19 @@ public class MapGenerator extends javax.swing.JPanel {
 
         NullSec.setSelected(true);
         NullSec.setText("Null Sec < .1");
+        NullSec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NullSecActionPerformed(evt);
+            }
+        });
 
         LowSec.setSelected(true);
         LowSec.setText("Low Sec .1 < < .5");
+        LowSec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LowSecActionPerformed(evt);
+            }
+        });
 
         HighSec.setSelected(true);
         HighSec.setText("High Sec .5 <");
@@ -232,14 +256,13 @@ public class MapGenerator extends javax.swing.JPanel {
                     .addComponent(Execute)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(NullSec, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(LowSec)
-                                .addComponent(HighSec)
-                                .addGroup(jPanel6Layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addGap(4, 4, 4)
-                                    .addComponent(Region, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(LowSec)
+                            .addComponent(HighSec)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(4, 4, 4)
+                                .addComponent(Region, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(NullSec))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -249,9 +272,9 @@ public class MapGenerator extends javax.swing.JPanel {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
+                        .addGap(9, 9, 9)
                         .addComponent(NullSec)
-                        .addGap(5, 5, 5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(LowSec)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(HighSec)
@@ -281,23 +304,21 @@ public class MapGenerator extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void filterSystemsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterSystemsActionPerformed
-        // TODO add your handling code here:
+        transFilter=3;
     }//GEN-LAST:event_filterSystemsActionPerformed
-
-    private void transContainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transContainActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_transContainActionPerformed
 
     private void ExecuteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExecuteActionPerformed
         try {
-            Map Amap= new Map(selectedRegion);
+            System.out.println("N"+Nullsec+"L"+Lowsec+"H"+Highsec);
+            item=itemBox.getText();
+            Map Amap= new Map(selectedRegion,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,selectedFilter);
         } catch (SQLException ex) {
             Logger.getLogger(MapGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_ExecuteActionPerformed
 
     private void filterQuantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterQuantityActionPerformed
-        // TODO add your handling code here:
+        FilterQuantity=Integer.parseInt((String)filterQuantity.getSelectedItem());
     }//GEN-LAST:event_filterQuantityActionPerformed
 
     private void RegionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegionActionPerformed
@@ -307,12 +328,47 @@ public class MapGenerator extends javax.swing.JPanel {
     }//GEN-LAST:event_RegionActionPerformed
 
     private void HighSecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HighSecActionPerformed
-        // TODO add your handling code here:
+        Highsec=!Highsec;
     }//GEN-LAST:event_HighSecActionPerformed
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+    private void NoneTransActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NoneTransActionPerformed
+         transFilter=0;
+    }//GEN-LAST:event_NoneTransActionPerformed
+
+    private void LowSecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LowSecActionPerformed
+
+        Lowsec=!Lowsec;
+    }//GEN-LAST:event_LowSecActionPerformed
+
+    private void NullSecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NullSecActionPerformed
+
+        Nullsec=!Nullsec;
+    }//GEN-LAST:event_NullSecActionPerformed
+
+    private void transOfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transOfActionPerformed
+        transFilter=1;
+    }//GEN-LAST:event_transOfActionPerformed
+
+    private void idtoggleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_idtoggleActionPerformed
+        useID=!useID;
+        System.out.println(useID);
+    }//GEN-LAST:event_idtoggleActionPerformed
+
+    private void nametoggleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nametoggleActionPerformed
+        useID=!useID;
+                System.out.println(useID);
+
+    }//GEN-LAST:event_nametoggleActionPerformed
+
+    private void itemBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemBoxActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+    }//GEN-LAST:event_itemBoxActionPerformed
+
+    private void filterTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterTypeActionPerformed
+                selectedFilter = (String)filterType.getSelectedItem();
+                System.out.println(selectedFilter);
+
+    }//GEN-LAST:event_filterTypeActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -320,6 +376,7 @@ public class MapGenerator extends javax.swing.JPanel {
     private javax.swing.JCheckBox HighSec;
     private javax.swing.ButtonGroup IDNameToggle;
     private javax.swing.JCheckBox LowSec;
+    private javax.swing.JRadioButton NoneTrans;
     private javax.swing.JCheckBox NullSec;
     private javax.swing.JComboBox<String> Region;
     private javax.swing.JComboBox<String> filterQuantity;
@@ -327,16 +384,13 @@ public class MapGenerator extends javax.swing.JPanel {
     private javax.swing.ButtonGroup filterToggle;
     private javax.swing.JComboBox<String> filterType;
     private javax.swing.JRadioButton idtoggle;
+    private javax.swing.JTextField itemBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
     private javax.swing.JRadioButton nametoggle;
-    private javax.swing.JRadioButton transContain;
     private javax.swing.JRadioButton transOf;
     // End of variables declaration//GEN-END:variables
 }

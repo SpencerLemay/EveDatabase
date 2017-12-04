@@ -44,7 +44,6 @@ public class drawMap extends JPanel  {
         miny=getMinYSys(systems);
         maxx=getMaxXSys(systems);
         maxy=getMaxYSys(systems);
-        System.out.println("minx "+minx+"miny "+miny+"maxx "+maxx+"maxy "+maxy+"\n");
         
         Double dmulty= maxy-miny;
         Double dmultx= maxx-minx;
@@ -52,9 +51,6 @@ public class drawMap extends JPanel  {
         float mapRatio=store.floatValue();
         if(mapRatio<1){
             xwidth=xwidth*mapRatio;
-        }
-        else{
-            ywidth=ywidth*mapRatio;
         }
         System.out.println("ratio: "+mapRatio+"\n");
         for (StarSystem system : systems) {
@@ -68,7 +64,6 @@ public class drawMap extends JPanel  {
                     if (system.connectsTo[j] == systems[k].systemID) {
                         system.connectiony[j] = normalizeStar(systems[k].y,miny,maxy,ywidth);
                         system.connectionx[j] = normalizeStar(systems[k].x,minx,maxx,xwidth);
-                        System.out.println(system.connectiony[j]+","+system.connectionx[j]+"\n");
                         j++;
                         k=0;
                     }

@@ -14,10 +14,10 @@ import javax.swing.JFrame;
  */
 public class Map {
     Database_IO base= new Database_IO();
-    Map(String RegionName) throws SQLException{
-        base.loadSystemInfo(RegionName);
+    Map(String RegionName,boolean Highsec,boolean Lowsec,boolean Nullsec,int transFilter,boolean useID,int FilterQuantity,String item,String filterType) throws SQLException{
+        base.loadSystemInfo(RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType);
         
-        StarSystem[] Systems= new StarSystem[base.SystemCount(RegionName)];
+        StarSystem[] Systems= new StarSystem[base.SystemCount(RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType)];
         
         //int SystemSources[]=base.GetConnectsFrom();
         //System.out.print( Systems[0].name+"\n");
@@ -28,8 +28,7 @@ public class Map {
         int SysRegionIDs[]= base.GetRegionID();
         int SysSysIDs[];
         SysSysIDs = base.GetSolarSystemID();
-        System.out.println("here");
-        int SysConnections[][]=base.loadConnectsTo(SysSysIDs,RegionName);
+        int SysConnections[][]=base.loadConnectsTo(SysSysIDs,RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType);
         for(int i=0;i<Systems.length;i++){
             Systems[i]= new StarSystem();
             Systems[i].name=SysNames[i];
@@ -41,7 +40,7 @@ public class Map {
             Systems[i].connectsTo=SysConnections[i];
         }
         JFrame frame= new JFrame("Eve Trader Map");
-        frame.setSize(1800,1000);
+        frame.setSize(1800,1050);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         
