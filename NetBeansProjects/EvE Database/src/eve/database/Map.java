@@ -5,7 +5,6 @@
  */
 package eve.database;
 
-import java.awt.Rectangle;
 import java.sql.SQLException;
 import javax.swing.JFrame;
 
@@ -15,10 +14,10 @@ import javax.swing.JFrame;
  */
 public class Map {
     Database_IO base= new Database_IO();
-    Map() throws SQLException{
-        base.loadSystemInfo();
+    Map(String RegionName,boolean Highsec,boolean Lowsec,boolean Nullsec,int transFilter,boolean useID,int FilterQuantity,String item,String filterType) throws SQLException{
+        base.loadSystemInfo(RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType);
         
-        StarSystem[] Systems= new StarSystem[base.SystemCount()];
+        StarSystem[] Systems= new StarSystem[base.SystemCount(RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType)];
         
         //int SystemSources[]=base.GetConnectsFrom();
         //System.out.print( Systems[0].name+"\n");
@@ -27,9 +26,9 @@ public class Map {
         Double SysListY[]= base.GetSystemLocY();
         Double SysListSec[]=base.GetSystemSecurity();
         int SysRegionIDs[]= base.GetRegionID();
-        int SysSysIDs[]=base.GetSolarSystemID();
-        System.out.println("here");
-        int SysConnections[][]=base.loadConnectsTo(SysSysIDs);
+        int SysSysIDs[];
+        SysSysIDs = base.GetSolarSystemID();
+        int SysConnections[][]=base.loadConnectsTo(SysSysIDs,RegionName,Highsec,Lowsec,Nullsec,transFilter,useID,FilterQuantity,item,filterType);
         for(int i=0;i<Systems.length;i++){
             Systems[i]= new StarSystem();
             Systems[i].name=SysNames[i];
@@ -41,13 +40,17 @@ public class Map {
             Systems[i].connectsTo=SysConnections[i];
         }
         JFrame frame= new JFrame("Eve Trader Map");
-        frame.setSize(1800,1000);
+        frame.setSize(1800,1050);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         
         frame.setVisible(true);
-        
+        if(Systems.length==0){
+            frame.setVisible(false);
+            frame.dispose();
+        }else{
         drawMap mappy = new drawMap(Systems);
         frame.add(mappy);
+        }
     }
 }
